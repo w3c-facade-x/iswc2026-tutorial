@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Façade-X Tutorial (FX) — ISWC 2026</title>
+<meta name="description" content="Half-day ISWC 2026 tutorial on Façade-X: querying any data format (CSV, JSON, XML, spreadsheets) as a knowledge graph with SPARQL Anything.">
+<meta property="og:title" content="Façade-X Tutorial (FX) — ISWC 2026">
+<meta property="og:description" content="Querying Any Format as a Knowledge Graph. A hands-on half-day tutorial at ISWC 2026, Bari.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --navy:#023558;
+    --navy-2:#0a4a76;
+    --accent:#e8703a;
+    --accent-2:#f2a154;
+    --ink:#1c2530;
+    --muted:#5b6b7a;
+    --line:#e2e8ee;
+    --bg:#ffffff;
+    --bg-soft:#f5f8fb;
+    --max:960px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    line-height:1.6;
+    background:var(--bg);
+  }
+  a{color:var(--navy-2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+
+  /* Header */
+  header.hero{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);
+    color:#fff;
+    padding:56px 0 46px;
+  }
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.78rem;
+    font-weight:600;
+    color:var(--accent-2);
+    margin:0 0 14px;
+  }
+  header.hero h1{
+    font-size:2.35rem;
+    line-height:1.15;
+    margin:0 0 8px;
+    font-weight:700;
+  }
+  header.hero .subtitle{
+    font-size:1.2rem;
+    color:#cfe0ee;
+    margin:0 0 26px;
+    font-weight:400;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 22px;
+    font-size:.95rem;
+    color:#e6eef5;
+  }
+  .meta-row span{display:inline-flex;align-items:center;gap:7px}
+  .meta-row b{color:#fff;font-weight:600}
+  .badges{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px}
+  .badge{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.25);
+    color:#fff;
+    padding:6px 13px;
+    border-radius:20px;
+    font-size:.82rem;
+  }
+
+  /* Nav */
+  nav.tabs{
+    position:sticky;top:0;z-index:10;
+    background:rgba(255,255,255,.95);
+    backdrop-filter:saturate(180%) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.tabs .wrap{display:flex;gap:6px;overflow-x:auto}
+  nav.tabs a{
+    color:var(--muted);
+    padding:14px 12px;
+    font-size:.92rem;
+    font-weight:500;
+    white-space:nowrap;
+    border-bottom:2px solid transparent;
+  }
+  nav.tabs a:hover{color:var(--navy);text-decoration:none}
+
+  /* Sections */
+  section{padding:44px 0;border-bottom:1px solid var(--line)}
+  section h2{
+    font-size:1.5rem;
+    margin:0 0 18px;
+    color:var(--navy);
+    display:flex;align-items:center;gap:10px;
+  }
+  section h2::before{
+    content:"";
+    width:5px;height:1.15em;
+    background:var(--accent);
+    border-radius:3px;
+    display:inline-block;
+  }
+  section h3{font-size:1.08rem;margin:26px 0 8px;color:var(--navy-2)}
+  p{margin:0 0 14px}
+  .lead{font-size:1.08rem;color:var(--ink)}
+
+  ul.clean{margin:0 0 14px;padding-left:1.15em}
+  ul.clean li{margin:6px 0}
+
+  /* Objectives grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .card{
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px 18px;
+  }
+  .card h4{margin:0 0 6px;font-size:1rem;color:var(--navy)}
+  .card p{margin:0;font-size:.93rem;color:var(--muted)}
+
+  /* Schedule */
+  .sched{width:100%;border-collapse:collapse;font-size:.95rem}
+  .sched th,.sched td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  .sched th{background:var(--navy);color:#fff;font-weight:600}
+  .sched td.time{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--navy-2);font-weight:600;width:130px}
+  .sched td.who{color:var(--muted);white-space:nowrap;width:150px}
+  .slot-row td{
+    background:var(--bg-soft);
+    font-weight:700;color:var(--navy);
+    border-top:2px solid var(--accent);
+  }
+  .slot-row .tag{
+    display:inline-block;background:var(--accent);color:#fff;
+    font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;
+    padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;font-weight:600;
+  }
+  .break-row td{color:var(--muted);font-style:italic;background:#fbfdff}
+
+  /* Presenters */
+  .people{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .person{border:1px solid var(--line);border-radius:12px;padding:18px}
+  .person .name{font-weight:700;color:var(--navy);font-size:1.02rem}
+  .person .aff{color:var(--accent);font-size:.86rem;margin-bottom:8px}
+  .person p{font-size:.9rem;color:var(--muted);margin:0}
+
+  .btnrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+  .btn{
+    display:inline-block;background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:8px;font-weight:600;font-size:.95rem;
+  }
+  .btn:hover{background:var(--navy-2);text-decoration:none}
+  .btn.alt{background:var(--accent)}
+  .btn.alt:hover{background:#d55f2c}
+
+  .refs{font-size:.9rem;color:var(--muted)}
+  .refs li{margin:8px 0}
+
+  footer{padding:32px 0;color:var(--muted);font-size:.88rem;text-align:center}
+  footer a{color:var(--navy-2)}
+
+  @media (max-width:640px){
+    header.hero h1{font-size:1.8rem}
+    .sched td.who{white-space:normal}
+    section h2{font-size:1.3rem}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">ISWC 2026 · Half-Day Tutorial</p>
+    <h1>Façade-X: Querying Any Format as a Knowledge Graph</h1>
+    <p class="subtitle">Integrate CSV, JSON, XML, spreadsheets and more using SPARQL alone.</p>
+    <div class="meta-row">
+      <span>📍 <b>Bari, Italy</b></span>
+      <span>📅 <b>ISWC 2026</b> · (TBD: 25 or 26) October 2026</span>
+      <span>⏱️ <b>Half day</b> (~3.5 hours)</span>
+      <span>🎯 Intermediate</span>
+    </div>
+    <div class="badges">
+      <span class="badge">SPARQL</span>
+      <span class="badge">Knowledge Graphs</span>
+      <span class="badge">Data Integration</span>
+      <span class="badge">Linked Data</span>
+      <span class="badge">Hands-on</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <a href="#overview">Overview</a>
+    <a href="#objectives">Objectives</a>
+    <a href="#schedule">Schedule</a>
+    <a href="#materials">Materials</a>
+    <a href="#requirements">Requirements</a>
+    <a href="#presenters">Presenters</a>
+    <a href="#refs">References</a>
+  </div>
+</nav>
+
+<section id="overview">
+  <div class="wrap">
+    <h2>Overview</h2>
+    <p class="lead">A growing community of researchers, practitioners, and tool builders has coalesced around <strong>Façade-X</strong>, a design philosophy and metamodel for querying heterogeneous data formats — CSV, JSON, XML, spreadsheets, and more — as knowledge graphs, using SPARQL as the sole integration language.</p>
+    <p>This tutorial brings that community to ISWC, disseminating the methods, technologies, and philosophy behind the approach. <a href="http://sparql-anything.cc" target="_blank" rel="noopener">SPARQL Anything</a>, the reference open-source implementation, serves as the primary teaching tool, while the tutorial also showcases independent implementations emerging in commercial platforms, reflecting the maturity of the approach. The <strong>W3C Façade-X Community Group</strong>, active since late 2025, provides the standardisation backdrop.</p>
+    <!-- <p>This is a <strong>half-day edition</strong> built around a central hands-on session, while still touching every theme of the approach: the philosophy and its theoretical foundations, live querying of real data with SPARQL Anything, industry perspectives from production deployments, and the teaching and standardisation roadmap.</p> -->
+
+    <h3>Why Façade-X?</h3>
+    <p>Integrating heterogeneous data formats remains one of the most persistent practical obstacles in knowledge graph construction. Conventional approaches rely on dedicated mapping languages and separate toolchains, adding complexity that often falls to domain experts rather than software engineers. Façade-X takes a different route: by exposing any format as a knowledge graph queryable with SPARQL alone, it removes the need for a second mapping language and keeps the entire workflow within familiar Semantic Web standards.</p>
+
+    <div class="btnrow">
+      <a class="btn" href="#schedule">See the schedule</a>
+      <a class="btn alt" href="http://sparql-anything.cc" target="_blank" rel="noopener">SPARQL Anything ↗</a>
+    </div>
+  </div>
+</section>
+
+<section id="objectives">
+  <div class="wrap">
+    <h2>What you'll learn</h2>
+    <div class="grid">
+      <div class="card">
+        <h4>The philosophy</h4>
+        <p>Understand the Façade-X design philosophy and its underlying metamodel.</p>
+      </div>
+      <div class="card">
+        <h4>Practical skills</h4>
+        <p>Query heterogeneous data formats — CSV, JSON, XML and more — using SPARQL Anything.</p>
+      </div>
+      <div class="card">
+        <h4>Deployment patterns</h4>
+        <p>Recognise real-world deployment patterns and data-integration strategies from production case studies.</p>
+      </div>
+      <div class="card">
+        <h4>Open research</h4>
+        <p>Engage with the open theoretical questions that define the approach as an active research direction.</p>
+      </div>
+      <div class="card">
+        <h4>Standardisation</h4>
+        <p>Appreciate the aims of the ongoing W3C standardisation effort and how to get involved.</p>
+      </div>
+      <div class="card">
+        <h4>Bring your data</h4>
+        <p>Work through guided exercises on real datasets and bring your own questions to the SPARQL Anything clinic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="schedule">
+  <div class="wrap">
+    <h2>Schedule (provisional)</h2>
+    <p>A half-day programme (~3.5 hours) built around the hands-on session, with all four themes represented. Indicative times below; the exact slot will follow the official ISWC 2026 tutorial programme.</p>
+    <table class="sched">
+      <thead>
+        <tr><th>Time</th><th>Session</th><th>Presenter(s)</th></tr>
+      </thead>
+      <tbody>
+        <tr class="slot-row"><td class="time">09:00–09:40</td><td>Slot 1 · The Problem and the Idea</td><td></td></tr>
+        <tr><td class="time">09:00–09:20</td><td>Introduction to Façade-X</td><td class="who">Enrico &amp; Luigi</td></tr>
+        <tr><td class="time">09:20–09:40</td><td>Foundations: towards a theory of façade-based data access, with a short interactive modelling exercise</td><td class="who">Enrico &amp; Luigi</td></tr>
+
+        <tr class="slot-row"><td class="time">09:40–11:00</td><td>Slot 2 · Hands-on with SPARQL Anything<span class="tag">Core</span></td><td></td></tr>
+        <tr><td class="time">09:40–10:10</td><td>Live querying of CSV, JSON, and XML</td><td class="who">Luigi</td></tr>
+        <tr><td class="time">10:10–10:35</td><td>SPARQL Anything functions and magic properties</td><td class="who">Enrico</td></tr>
+        <tr><td class="time">10:35–11:00</td><td>Guided exercises with real datasets</td><td class="who">Enrico &amp; Luigi</td></tr>
+
+        <tr class="break-row"><td class="time">11:00–11:20</td><td>Break · SPARQL Anything Clinic (bring your own data &amp; questions)</td><td class="who">All</td></tr>
+
+        <tr class="slot-row"><td class="time">11:20–12:45</td><td>Slot 3 · From Practice to Standards</td><td></td></tr>
+        <tr><td class="time">11:20–12:20</td><td>Industry perspectives — lightning talks: decoupling graph construction (Public Procurement Data Space), railway infrastructure KG, and a commercial deployment with TriplyDB</td><td class="who">Ivo, Mathias &amp; Martin</td></tr>
+        <tr><td class="time">12:20–12:30</td><td>Pedagogical experience: teaching KG management with SPARQL Anything</td><td class="who">Ryan</td></tr>
+        <tr><td class="time">12:30–12:45</td><td>The W3C Façade-X Community Group: standardisation roadmap, community, and discussion</td><td class="who">Enrico</td></tr>
+<!--         <tr><td class="time">12:25–12:45</td><td>Open discussion: challenges, open problems, community next steps</td><td class="who">All</td></tr> -->
+      </tbody>
+    </table>
+    <p style="font-size:.88rem;color:var(--muted);margin-top:14px">The tutorial deliberately avoids a lecture-only format: participants work through guided exercises on real datasets during the hands-on slot, bring their own data and questions to the SPARQL Anything clinic, and take part in an open discussion on community next steps.</p>
+  </div>
+</section>
+
+<section id="materials">
+  <div class="wrap">
+    <h2>Materials</h2>
+    <p>Tutorial materials include slides for all sessions, Jupyter notebooks for the hands-on exercises, and SPARQL Anything documentation with worked examples. 
+<!--     Participants will have access to a live SPARQL Anything instance at <a href="https://tutorial.sparql-anything.cc" target="_blank" rel="noopener">tutorial.sparql-anything.cc</a>.</p> -->
+    <p>All materials are openly licensed and will be made available here <strong>one week before the tutorial date</strong>.</p>
+    <!-- 
+<div class="btnrow">
+      <a class="btn" href="https://github.com/w3c-facade-x/iswc2026-tutorial" target="_blank" rel="noopener">Materials repository ↗</a>
+      <a class="btn alt" href="https://tutorial.sparql-anything.cc" target="_blank" rel="noopener">Live instance ↗</a>
+    </div>
+ -->
+  </div>
+</section>
+
+<section id="requirements">
+  <div class="wrap">
+    <h2>Requirements &amp; audience</h2>
+    <h3>For participants</h3>
+    <ul class="clean">
+      <li>Bring a laptop with <strong>SPARQL Anything pre-downloaded</strong>, or <strong>PySPARQL Anything</strong> installed in a Python environment or Jupyter notebook.</li>
+      <li>Stable Wi-Fi is essential for the live querying exercises. As a contingency, a prepared <strong>Google Colab</strong> notebook will be available if local installations are unavailable.</li>
+    </ul>
+    <h3>Who it's for</h3>
+    <p>The tutorial is application- and tool-focused, pitched at an <strong>intermediate</strong> level and targeted at knowledge graph engineers, data integration practitioners, Semantic Web researchers, and educators. Attendees are expected to have basic familiarity with SPARQL and at least one non-RDF data format (CSV, JSON, or XML). <strong>No prior knowledge of Façade-X or SPARQL Anything is assumed.</strong></p>
+  </div>
+</section>
+
+<section id="presenters">
+  <div class="wrap">
+    <h2>Presenters</h2>
+    <div class="people">
+      <div class="person">
+        <div class="name">Luigi Asprino</div>
+        <div class="aff">Università Telematica San Raffaele, Roma (IT)</div>
+        <p>Associate Professor with 10+ years of AI research, a founding member of SPARQL Anything, and chair of the W3C Data Façades Community Group.</p>
+      </div>
+      <div class="person">
+        <div class="name">Enrico Daga</div>
+        <div class="aff">Knowledge Media Institute, The Open University (UK)</div>
+        <p>Senior Research Fellow specialising in KG construction for cultural heritage and smart cities, and a founding member of SPARQL Anything.</p>
+      </div>
+      <div class="person">
+        <div class="name">Martin van Harmelen</div>
+        <div class="aff">Triply (NL)</div>
+        <p>Software engineer leading SPARQL engine design and ELT pipeline development on the TriplyDB platform.</p>
+      </div>
+      <div class="person">
+        <div class="name">Mathias Vanden Auweele</div>
+        <div class="aff">MATDATA (BE)</div>
+        <p>Independent railway and knowledge graph consultant with 17+ years in railway infrastructure data, ontology design, and SPARQL-based production deployments.</p>
+      </div>
+      <div class="person">
+        <div class="name">Ryan Shaw</div>
+        <div class="aff">University of North Carolina at Chapel Hill (US)</div>
+        <p>Associate Professor with 15 years teaching in information science; has taught KG management with SPARQL Anything over multiple semesters.</p>
+      </div>
+      <div class="person">
+        <div class="name">Ivo Velitchkov</div>
+        <div class="aff">Kvistgaard (DK)</div>
+        <p>Independent consultant and trainer, PhD in Computer Science, 30+ years of experience and 20 years teaching, the last 8 on semantic technologies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="refs">
+  <div class="wrap">
+    <h2>References</h2>
+    <ol class="refs">
+      <li>Asprino, L., Daga, E. <em>Towards a theory of façade-X data access: satisfiability of SPARQL basic graph patterns.</em> arXiv preprint arXiv:2602.11756 (2026).</li>
+      <li>Asprino, L., Daga, E., Gangemi, A., Mulholland, P. <em>Knowledge graph construction with a façade: a unified method to access heterogeneous data sources on the web.</em> ACM Transactions on Internet Technology 23(1), 1–31 (2023).</li>
+      <li>Iglesias-Molina, A., Van Assche, D., Arenas-Guerrero, J., De Meester, B., Debruyne, C., Jozashoori, S., Maria, P., Michel, F., Chaves-Fraga, D., Dimou, A. <em>The RML ontology: a community-driven modular redesign after a decade of experience in mapping heterogeneous data to RDF.</em> In: ISWC, pp. 152–175. Springer (2023).</li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Façade-X Tutorial (FX) · ISWC 2026, Bari · Organised by the <a href="https://github.com/w3c-facade-x" target="_blank" rel="noopener">W3C Façade-X Community Group</a></p>
+    <p><a href="http://sparql-anything.cc" target="_blank" rel="noopener">SPARQL Anything</a> · <a href="https://github.com/w3c-facade-x/iswc2026-tutorial" target="_blank" rel="noopener">Tutorial repository</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
