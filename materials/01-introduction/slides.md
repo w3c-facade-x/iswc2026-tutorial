@@ -170,7 +170,7 @@ Welcome. Organised by the W3C Data Façades Community Group.
 <div class="card"><b>Martin van Harmelen</b><span class="aff">Triply (NL)</span>SPARQL engine design and ELT pipelines on TriplyDB</div>
 <div class="card"><b>Mathias Vanden Auweele</b><span class="aff">MATDATA (BE)</span>Railway infrastructure data and production KGs</div>
 <div class="card"><b>Ryan Shaw</b><span class="aff">UNC Chapel Hill (US)</span>Teaches KG management with SPARQL Anything</div>
-<div class="card"><b>Ivo Velitchkov</b><span class="aff">Kvistgaard (DK)</span>Consultant and trainer in semantic technologies</div>
+<div class="card"><b>Ivo Velitchkov</b><span class="aff">Kvistgaard (BG)</span>Consultant and trainer in semantic technologies</div>
 </div>
 
 <!--
